@@ -1,6 +1,8 @@
 export default function Slider(slider, wrapper) {
   this.slide = document.querySelector(slider);
   this.wrapper = document.querySelector(wrapper);
+  this.dist = { finalPosition: 0, startX: 0, movement: 0 };
+
   return this.init();
 }
 
@@ -22,15 +24,28 @@ Slider.prototype.bindEvents = function () {
 
 Slider.prototype.onStart = function (event) {
   event.preventDefault();
-  console.log("clicou");
+
+  this.dist.startX = event.clientX;
   this.wrapper.addEventListener("mousemove", this.onMove);
 };
 
 Slider.prototype.onMove = function (event) {
-  console.log("moveu");
+  const finalPosition = this.updatePosition(event.clientX);
+  this.moveSlide(finalPosition);
 };
 
 Slider.prototype.onEnd = function (event) {
-  console.log("acabou");
+  this.dist.finalPosition = event.clientX;
   this.wrapper.removeEventListener("mousemove", this.onMove);
+  this.dist.finalPosition = this.dist.movePosition;
+};
+
+Slider.prototype.updatePosition = function (clientX) {
+  this.dist.movement = (this.dist.startX - clientX) * 1.6;
+  return this.dist.finalPosition - this.dist.movement;
+};
+
+Slider.prototype.moveSlide = function (distX) {
+  this.dist.movePosition = distX;
+  this.slide.style.transform = `translate3d(${distX}px, 0, 0)`;
 };
