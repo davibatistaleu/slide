@@ -1,5 +1,5 @@
-import Slider from "./slider.js";
+import Slide from "./slider.js";
 
-const slide = new Slider(".slide", ".slide-wrapper");
+const slide = new Slide(".slide", ".slide-wrapper");
 
 slide.init();

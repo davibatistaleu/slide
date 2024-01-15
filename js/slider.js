@@ -1,51 +1,54 @@
-export default function Slider(slider, wrapper) {
-  this.slide = document.querySelector(slider);
+export default function Slide(slide, wrapper) {
+  this.slide = document.querySelector(slide);
   this.wrapper = document.querySelector(wrapper);
-  this.dist = { finalPosition: 0, startX: 0, movement: 0 };
-
+  this.sliderData = {
+    initialPosition: 0,
+    movement: 0,
+    lastPosition: 0,
+    lastPostionSlider: 0,
+  };
   return this.init();
 }
 
-Slider.prototype.init = function () {
+Slide.prototype.init = function () {
   this.bindEvents();
   this.addEvents();
+
+  return this;
 };
 
-Slider.prototype.addEvents = function () {
-  this.wrapper.addEventListener("mousedown", this.onStart);
-  this.wrapper.addEventListener("mouseup", this.onEnd);
+Slide.prototype.bindEvents = function () {
+  this.onMousedown = this.onMousedown.bind(this);
+  this.onMousemove = this.onMousemove.bind(this);
+  this.onMouseup = this.onMouseup.bind(this);
 };
 
-Slider.prototype.bindEvents = function () {
-  this.onStart = this.onStart.bind(this);
-  this.onMove = this.onMove.bind(this);
-  this.onEnd = this.onEnd.bind(this);
+Slide.prototype.addEvents = function () {
+  this.wrapper.addEventListener("mousedown", this.onMousedown);
+  this.wrapper.addEventListener("mouseup", this.onMouseup);
 };
 
-Slider.prototype.onStart = function (event) {
+Slide.prototype.onMousedown = function (event) {
   event.preventDefault();
-
-  this.dist.startX = event.clientX;
-  this.wrapper.addEventListener("mousemove", this.onMove);
+  this.sliderData.initialPosition = event.clientX;
+  this.wrapper.addEventListener("mousemove", this.onMousemove);
 };
 
-Slider.prototype.onMove = function (event) {
-  const finalPosition = this.updatePosition(event.clientX);
-  this.moveSlide(finalPosition);
+Slide.prototype.onMousemove = function (event) {
+  this.animateSlide(this.caculateMovements(event.clientX));
+};
+Slide.prototype.caculateMovements = function (currentMousePosition) {
+  this.sliderData.movement =
+    currentMousePosition - this.sliderData.initialPosition;
+
+  return this.sliderData.lastPosition - this.sliderData.movement;
+};
+Slide.prototype.onMouseup = function (event) {
+  this.wrapper.removeEventListener("mousemove", this.onMousemove);
+  this.sliderData.lastPosition = this.sliderData.lastPostionSlider;
 };
 
-Slider.prototype.onEnd = function (event) {
-  this.dist.finalPosition = event.clientX;
-  this.wrapper.removeEventListener("mousemove", this.onMove);
-  this.dist.finalPosition = this.dist.movePosition;
-};
-
-Slider.prototype.updatePosition = function (clientX) {
-  this.dist.movement = (this.dist.startX - clientX) * 1.6;
-  return this.dist.finalPosition - this.dist.movement;
-};
-
-Slider.prototype.moveSlide = function (distX) {
-  this.dist.movePosition = distX;
-  this.slide.style.transform = `translate3d(${distX}px, 0, 0)`;
+Slide.prototype.animateSlide = function (currentMousePosition) {
+  this.sliderData.lastPostionSlider = currentMousePosition;
+  this.slide.style.transform = `translate3d(${-currentMousePosition}px, 0, 0)`;
 };
