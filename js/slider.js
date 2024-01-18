@@ -1,54 +1,59 @@
 export default function Slide(slide, wrapper) {
   this.slide = document.querySelector(slide);
   this.wrapper = document.querySelector(wrapper);
-  this.sliderData = {
-    initialPosition: 0,
+
+  this.mouseInfo = {
+    startX: 0,
     movement: 0,
     lastPosition: 0,
-    lastPostionSlider: 0,
+    lastSliderXonScreen: 0,
   };
+
   return this.init();
 }
 
-Slide.prototype.init = function () {
-  this.bindEvents();
-  this.addEvents();
-
-  return this;
+Slide.prototype.init = function init() {
+  this.bind();
+  this.addEvent();
+};
+Slide.prototype.bind = function bind() {
+  this.onStartClick = this.onStartClick.bind(this);
+  this.onMouseMove = this.onMouseMove.bind(this);
+  this.onEndClick = this.onEndClick.bind(this);
 };
 
-Slide.prototype.bindEvents = function () {
-  this.onMousedown = this.onMousedown.bind(this);
-  this.onMousemove = this.onMousemove.bind(this);
-  this.onMouseup = this.onMouseup.bind(this);
+Slide.prototype.addEvent = function addEventListener() {
+  this.wrapper.addEventListener("mousedown", this.onStartClick);
+  this.wrapper.addEventListener("mouseup", this.onEndClick);
 };
 
-Slide.prototype.addEvents = function () {
-  this.wrapper.addEventListener("mousedown", this.onMousedown);
-  this.wrapper.addEventListener("mouseup", this.onMouseup);
-};
-
-Slide.prototype.onMousedown = function (event) {
+Slide.prototype.onStartClick = function onStartClick(event) {
   event.preventDefault();
-  this.sliderData.initialPosition = event.clientX;
-  this.wrapper.addEventListener("mousemove", this.onMousemove);
+  this.wrapper.addEventListener("mousemove", this.onMouseMove);
+
+  this.mouseInfo.startX = event.clientX;
 };
 
-Slide.prototype.onMousemove = function (event) {
-  this.animateSlide(this.caculateMovements(event.clientX));
-};
-Slide.prototype.caculateMovements = function (currentMousePosition) {
-  this.sliderData.movement =
-    currentMousePosition - this.sliderData.initialPosition;
-
-  return this.sliderData.lastPosition - this.sliderData.movement;
-};
-Slide.prototype.onMouseup = function (event) {
-  this.wrapper.removeEventListener("mousemove", this.onMousemove);
-  this.sliderData.lastPosition = this.sliderData.lastPostionSlider;
+Slide.prototype.onMouseMove = function onMouseMove(event) {
+  const finalPosition = this.updateValues(event.clientX);
+  this.animationMove(finalPosition);
 };
 
-Slide.prototype.animateSlide = function (currentMousePosition) {
-  this.sliderData.lastPostionSlider = currentMousePosition;
-  this.slide.style.transform = `translate3d(${-currentMousePosition}px, 0, 0)`;
+Slide.prototype.onEndClick = function onEndClick(event) {
+  this.wrapper.removeEventListener("mousemove", this.onMouseMove);
+  this.mouseInfo.lastPosition = this.mouseInfo.lastSliderXonScreen;
+  console.log("end: ", this.mouseInfo);
+};
+
+Slide.prototype.animationMove = function animationMove(px) {
+  this.mouseInfo.lastSliderXonScreen = px;
+
+  this.slide.style.transform = `translate3d(${px}px, 0, 0)`;
+};
+
+Slide.prototype.updateValues = function updateValues(lastMove) {
+  this.mouseInfo.movement = (this.mouseInfo.startX - lastMove) * 1.4;
+  this.mouseInfo.lastSliderXonScreen =
+    this.mouseInfo.lastPosition + this.mouseInfo.movement;
+  return this.mouseInfo.lastPosition - this.mouseInfo.movement;
 };
