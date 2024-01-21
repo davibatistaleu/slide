@@ -1,7 +1,6 @@
 export default function Slide(slide, wrapper) {
   this.slide = document.querySelector(slide);
   this.wrapper = document.querySelector(wrapper);
-
   this.mouseInfo = {
     startX: 0,
     movement: 0,
@@ -16,6 +15,9 @@ Slide.prototype.init = function init() {
   this.bind();
   this.addEvent();
 };
+
+Slide.prototype.config = function (params) {};
+
 Slide.prototype.bind = function bind() {
   this.onStartClick = this.onStartClick.bind(this);
   this.onMouseMove = this.onMouseMove.bind(this);
@@ -43,6 +45,7 @@ Slide.prototype.onEndClick = function onEndClick(event) {
   this.wrapper.removeEventListener("mousemove", this.onMouseMove);
   this.mouseInfo.lastPosition = this.mouseInfo.lastSliderXonScreen;
   console.log("end: ", this.mouseInfo);
+  console.log(this.positionsOfImagesOnSlide);
 };
 
 Slide.prototype.animationMove = function animationMove(px) {
