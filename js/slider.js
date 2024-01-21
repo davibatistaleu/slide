@@ -26,26 +26,41 @@ Slide.prototype.bind = function bind() {
 
 Slide.prototype.addEvent = function addEventListener() {
   this.wrapper.addEventListener("mousedown", this.onStartClick);
+  this.wrapper.addEventListener("touchstart", this.onStartClick);
   this.wrapper.addEventListener("mouseup", this.onEndClick);
+  this.wrapper.addEventListener("touchend", this.onEndClick);
 };
 
 Slide.prototype.onStartClick = function onStartClick(event) {
-  event.preventDefault();
-  this.wrapper.addEventListener("mousemove", this.onMouseMove);
+  let moveType;
 
-  this.mouseInfo.startX = event.clientX;
+  if (event.type === "mousedown") {
+    event.preventDefault();
+    moveType = "mousedown";
+  } else {
+    console.log(event);
+    this.mouseInfo.startX = event.changedTouches[0].clientX;
+    moveType = "touchmove";
+  }
+
+  this.wrapper.addEventListener(moveType, this.onMouseMove);
 };
 
 Slide.prototype.onMouseMove = function onMouseMove(event) {
-  const finalPosition = this.updateValues(event.clientX);
+  const pointerPosition =
+    event.type === "mousemove"
+      ? event.clientX
+      : event.changedTouches[0].clientX;
+
+  const finalPosition = this.updateValues(pointerPosition);
   this.animationMove(finalPosition);
 };
 
 Slide.prototype.onEndClick = function onEndClick(event) {
-  this.wrapper.removeEventListener("mousemove", this.onMouseMove);
+  const moveType = event.type === "mouseup" ? "mousemove" : "touchmove";
+
+  this.wrapper.removeEventListener(moveType, this.onMouseMove);
   this.mouseInfo.lastPosition = this.mouseInfo.lastSliderXonScreen;
-  console.log("end: ", this.mouseInfo);
-  console.log(this.positionsOfImagesOnSlide);
 };
 
 Slide.prototype.animationMove = function animationMove(px) {
